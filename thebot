@@ -283,8 +283,11 @@ async def on_message(message):
     if message.author.bot:
         return
 
-    # Handle !start / !stop in DMs
+    # Handle !start / !stop in DMs (bot owner only)
     if isinstance(message.channel, discord.DMChannel):
+        app_info = await bot.application_info()
+        if message.author.id != app_info.owner.id:
+            return
         global spam_task
         if message.content.strip() == '!start':
             if spam_task is None or spam_task.done():
