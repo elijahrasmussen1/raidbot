@@ -143,7 +143,7 @@ invite_cache = {}
 
 # Background task handle for !start / !stop spam feature
 spam_task = None
-SPAM_CHANNEL_ID = 1488057545401565275
+SPAM_CHANNEL_ID = 1489680789749764236
 
 # -----------------------------
 # EVENTS
