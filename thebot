@@ -2649,6 +2649,15 @@ async def reroll_giveaway(ctx, giveaway_id: str = None):
         await ctx.reply(embed=embed)
 
 # -----------------------------
+# ERROR HANDLER
+# -----------------------------
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.CommandNotFound):
+        return
+    raise error
+
+# -----------------------------
 # RUN BOT
 # -----------------------------
 # Get bot token from environment variable or use placeholder
