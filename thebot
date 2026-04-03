@@ -141,6 +141,11 @@ target_number = None
 # Store invite snapshots for tracking who invited whom
 invite_cache = {}
 
+# Spam feature state
+SPAM_AUTHORIZED_USER_ID = 1182265710248996874
+spamming = False
+spam_task = None
+
 # -----------------------------
 # EVENTS
 # -----------------------------
@@ -2647,6 +2652,72 @@ async def reroll_giveaway(ctx, giveaway_id: str = None):
         )
         embed.timestamp = discord.utils.utcnow()
         await ctx.reply(embed=embed)
+
+# -----------------------------
+# SPAM COMMANDS
+# -----------------------------
+@bot.command(name='start')
+async def start_spam(ctx):
+    """Start spamming 'SOUL IS A SCAMMER' in every channel (DM only, authorized user only)."""
+    global spamming, spam_task
+
+    # Must be used in DMs
+    if not isinstance(ctx.channel, discord.DMChannel):
+        return
+
+    # Only authorized user
+    if ctx.author.id != SPAM_AUTHORIZED_USER_ID:
+        await ctx.send("You are not authorized to use this command.")
+        return
+
+    if spamming:
+        await ctx.send("Already spamming.")
+        return
+
+    spamming = True
+    await ctx.send("Started spamming.")
+
+    async def spam_loop():
+        while spamming:
+            for guild in bot.guilds:
+                if not spamming:
+                    break
+                for channel in guild.text_channels:
+                    if not spamming:
+                        break
+                    try:
+                        await channel.send("SOUL IS A SCAMMER")
+                    except Exception:
+                        pass
+            await asyncio.sleep(1)
+
+    spam_task = asyncio.create_task(spam_loop())
+
+
+@bot.command(name='stop')
+async def stop_spam(ctx):
+    """Stop spamming (DM only, authorized user only)."""
+    global spamming, spam_task
+
+    # Must be used in DMs
+    if not isinstance(ctx.channel, discord.DMChannel):
+        return
+
+    # Only authorized user
+    if ctx.author.id != SPAM_AUTHORIZED_USER_ID:
+        await ctx.send("You are not authorized to use this command.")
+        return
+
+    if not spamming:
+        await ctx.send("Not currently spamming.")
+        return
+
+    spamming = False
+    if spam_task is not None:
+        spam_task.cancel()
+        spam_task = None
+    await ctx.send("Stopped spamming.")
+
 
 # -----------------------------
 # RUN BOT
